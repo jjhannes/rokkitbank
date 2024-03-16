@@ -149,7 +149,10 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawLessThanOverdraft_ShouldPass()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+                long balance = service.Withdraw(4, 2000);
+
+                Assert.AreEqual(-7000, balance);
             }
 
             [TestMethod]
