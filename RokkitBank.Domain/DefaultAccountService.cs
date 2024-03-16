@@ -85,6 +85,15 @@ namespace RokkitBank.Domain
                     return target.Balance;
                 }
             }
+            else if (target.Type == AccountType.Current)
+            {
+                if (target.Balance - AmountToWithdraw > (-target.Overdraft))
+                {
+                    AccountRepo.Withdraw(target, AmountToWithdraw);
+
+                    return target.Balance;
+                }
+            }
 
             throw new WithdrawalAmountTooLargeException();
         }

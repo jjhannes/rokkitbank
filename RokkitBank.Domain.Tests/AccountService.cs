@@ -121,7 +121,9 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawLarge_ShouldThrowWithdrawalAmountTooLarge()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+                
+                Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => service.Withdraw(2, 6000));
             }
         }
 
@@ -137,7 +139,11 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawLessThanBalance_ShouldPass()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+                long balance = service.Withdraw(3, 100);
+
+                Assert.IsTrue(balance > 0);
+                Assert.AreEqual(900, balance);
             }
 
             [TestMethod]
