@@ -39,7 +39,7 @@ namespace RokkitBank.DB
                     ID = 4,
                     Type = AccountType.Current,
                     CustomerNum = 4,
-                    Balance = 4000,
+                    Balance = -5000,
                     Overdraft = 20000
                 }
             };
@@ -52,6 +52,11 @@ namespace RokkitBank.DB
             AccountRepo._accountIdIncrementer++;
 
             return AccountRepo._accountIdIncrementer;
+        }
+
+        public static Account GetAccount(long ID)
+        {
+            return AccountRepo._accounts.FirstOrDefault(a => a.ID == ID);
         }
 
         public static Account OpenAccount(AccountType Type, long CustomerNum, long Balance = 0, long Overdraft = 0)
@@ -68,6 +73,13 @@ namespace RokkitBank.DB
             AccountRepo._accounts.Add(newAccount);
 
             return newAccount;
+        }
+
+        public static Account Deposit(Account Account, long Amount)
+        {
+            Account.Balance += Amount;
+
+            return Account;
         }
     }
 }

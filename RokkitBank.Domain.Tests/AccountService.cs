@@ -47,13 +47,21 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void DepositSmall_ShouldPass()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+                long balance = service.Deposit(1, 100);
+
+                Assert.IsTrue(balance > 0);
+                Assert.AreEqual(2100, balance);
             }
 
             [TestMethod]
             public void DepositLarge_ShouldPass()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+                long balance = service.Deposit(2, 4250);
+
+                Assert.IsTrue(balance > 0);
+                Assert.AreEqual(9250, balance);
             }
         }
 
@@ -63,13 +71,19 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void DepositSmall_ShouldPass()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+                long balance = service.Deposit(3, 100);
+
+                Assert.AreEqual(1100, balance);
             }
 
             [TestMethod]
             public void DepositLarge_ShouldPass()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+                long balance = service.Deposit(4, 3975);
+
+                Assert.AreEqual(-1025, balance);
             }
         }
 

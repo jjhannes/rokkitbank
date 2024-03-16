@@ -57,7 +57,9 @@ namespace RokkitBank.Domain
 
         public long Deposit(long AccountId, long AmountToDeposit)
         {
-            throw new NotImplementedException();
+            Account target = AccountRepo.GetAccount(AccountId);
+
+            return AccountRepo.Deposit(target, AmountToDeposit).Balance;
         }
 
         public long Withdraw(long AccountId, long AmountToWithdraw)
