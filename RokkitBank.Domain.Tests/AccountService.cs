@@ -47,7 +47,9 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void DepositInvalidAccount_ShouldThrowAccountNotFound()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+
+                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(10, 1000));
             }
 
             [TestMethod]
@@ -77,7 +79,9 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void DepositInvalidAccount_ShouldThrowAccountNotFound()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+
+                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(10, 1000));
             }
 
             [TestMethod]
@@ -105,7 +109,9 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawInvalidAccount_ShouldThrowAccountNotFound()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+
+                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(10, 1000));
             }
 
             [TestMethod]
@@ -133,7 +139,9 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawInvalidAccount_ShouldThrowAccountNotFound()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+
+                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(10, 1000));
             }
 
             [TestMethod]
@@ -158,7 +166,9 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawMoreThanOverdraft_ShouldThrowWithdrawalAmountTooLarge()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+
+                Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => service.Withdraw(4, 20000));
             }
         }
     }
