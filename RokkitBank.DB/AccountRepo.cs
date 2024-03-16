@@ -1,12 +1,12 @@
 ﻿
-using RokkitBank.Domain.Contracts;
+using RokkitBank.DB.Entities;
 
 namespace RokkitBank.DB
 {
-    public class AccountRepo
+    public static class AccountRepo
     {
         private static List<Account> _accounts;
-        private static int _accountIdIncrementer;
+        private static long _accountIdIncrementer;
 
         static AccountRepo()
         {
@@ -47,21 +47,21 @@ namespace RokkitBank.DB
             AccountRepo._accountIdIncrementer = AccountRepo._accounts.Count;
         }
 
-        private static int GetIncrementedAccountId()
+        private static long GetIncrementedAccountId()
         {
             AccountRepo._accountIdIncrementer++;
 
             return AccountRepo._accountIdIncrementer;
         }
 
-        public static Account OpenAccount(int ID)
+        public static Account OpenAccount(AccountType Type, long CustomerNum, long Balance, long Overdraft = 0)
         {
             Account newAccount = new Account()
             {
-                ID = ID,
+                ID = AccountRepo.GetIncrementedAccountId(),
                 Type = AccountType.Current,
-                CustomerNum = 1,
-                Balance = 0,
+                CustomerNum = CustomerNum,
+                Balance = Balance,
                 Overdraft = 0
             };
 

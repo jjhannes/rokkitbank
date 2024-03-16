@@ -10,4 +10,8 @@
     <None Remove=".gitignore" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RokkitBank.DB\RokkitBank.DB.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -3,15 +3,15 @@ namespace RokkitBank.Domain.Contracts
 {
     public interface IAccountService
     {
-        public void OpenSavingsAccount(long AccountId, long AmountToDeposit);
+        public void OpenSavingsAccount(long CustomerNum, long AmountToDeposit);
         // throws OpeningBalanceTooSmall
 
-        public void OpenCurrentAccount(long AccountId);
+        public void OpenCurrentAccount(long CustomerNum);
 
-        public void Withdraw(long AccountId, int AmountToWithdraw);
+        public void Withdraw(long AccountId, long AmountToWithdraw);
         // throws AccountNotFoundException, WithdrawalAmountTooLargeException
 
-        public void Deposit(long AccountId, int AmountToDeposit);
+        public void Deposit(long AccountId, long AmountToDeposit);
         //throws AccountNotFoundException
     }
 }
