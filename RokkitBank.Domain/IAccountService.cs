@@ -3,14 +3,14 @@ namespace RokkitBank.Domain
 {
     public interface IAccountService
     {
-        public void OpenSavingsAccount(long accountId, long amountToDeposit);
+        public void OpenSavingsAccount(long AccountId, long AmountToDeposit);
 
-        public void OpenCurrentAccount(long accountId);
+        public void OpenCurrentAccount(long AccountId);
 
-        public void Withdraw(long accountId, int amountToWithdraw);
+        public void Withdraw(long AccountId, int AmountToWithdraw);
         // throws AccountNotFoundException, WithdrawalAmountTooLargeException;
 
-        public void Deposit(long accountId, int amountToDeposit);
+        public void Deposit(long AccountId, int AmountToDeposit);
         //throws AccountNotFoundException;
     }
 }
