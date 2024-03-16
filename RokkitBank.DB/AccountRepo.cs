@@ -75,11 +75,18 @@ namespace RokkitBank.DB
             return newAccount;
         }
 
-        public static Account Deposit(Account Account, long Amount)
+        public static Account Deposit(Account Target, long Amount)
         {
-            Account.Balance += Amount;
+            Target.Balance += Amount;
 
-            return Account;
+            return Target;
+        }
+
+        public static Account Withdraw(Account Target, long Amount)
+        {
+            Target.Balance -= Amount;
+
+            return Target;
         }
     }
 }

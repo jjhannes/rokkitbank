@@ -80,7 +80,7 @@ namespace RokkitBank.Domain
             {
                 if (target.Balance >= AmountToWithdraw)
                 {
-                    AccountRepo.Withdraw();
+                    AccountRepo.Withdraw(target, AmountToWithdraw);
 
                     return target.Balance;
                 }
