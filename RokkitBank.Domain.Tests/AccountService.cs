@@ -19,7 +19,11 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void OpenLarge_ShouldPass()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+
+                service.OpenSavingsAccount(10, 1000);
+
+                Assert.IsTrue(true);
             }
         }
 
