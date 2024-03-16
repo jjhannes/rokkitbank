@@ -45,6 +45,12 @@ namespace RokkitBank.Domain.Tests
         public class DepositIntoSavings
         {
             [TestMethod]
+            public void DepositInvalidAccount_ShouldThrowAccountNotFound()
+            {
+                Assert.Fail();
+            }
+
+            [TestMethod]
             public void DepositSmall_ShouldPass()
             {
                 DefaultAccountService service = new DefaultAccountService();
@@ -69,6 +75,12 @@ namespace RokkitBank.Domain.Tests
         public class DepositIntoCurrent
         {
             [TestMethod]
+            public void DepositInvalidAccount_ShouldThrowAccountNotFound()
+            {
+                Assert.Fail();
+            }
+
+            [TestMethod]
             public void DepositSmall_ShouldPass()
             {
                 DefaultAccountService service = new DefaultAccountService();
@@ -91,6 +103,12 @@ namespace RokkitBank.Domain.Tests
         public class WithdrawFromSavings
         {
             [TestMethod]
+            public void WithdrawInvalidAccount_ShouldThrowAccountNotFound()
+            {
+                Assert.Fail();
+            }
+
+            [TestMethod]
             public void WithdrawSmall_ShouldPass()
             {
                 DefaultAccountService service = new DefaultAccountService();
@@ -110,6 +128,12 @@ namespace RokkitBank.Domain.Tests
         [TestClass]
         public class WithdrawFromCurrent
         {
+            [TestMethod]
+            public void WithdrawInvalidAccount_ShouldThrowAccountNotFound()
+            {
+                Assert.Fail();
+            }
+
             [TestMethod]
             public void WithdrawLessThanBalance_ShouldPass()
             {
