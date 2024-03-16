@@ -17,7 +17,7 @@ namespace RokkitBank.Domain
             return new Random().Next(1, this._maximumCurrentAccountOverdraft);
         }
 
-        public bool OpenSavingsAccount(long CustomerNum, long AmountToDeposit)
+        public Account OpenSavingsAccount(long CustomerNum, long AmountToDeposit)
         {
             if (AmountToDeposit < this._minimumSavingsAccountCreateDeposit)
             {
@@ -26,36 +26,33 @@ namespace RokkitBank.Domain
 
             try
             {
-                AccountRepo.OpenAccount(AccountType.Savings, CustomerNum, Balance: AmountToDeposit);
-
-                return true;
+                return AccountRepo.OpenAccount(AccountType.Savings, CustomerNum, Balance: AmountToDeposit);
             }
             catch (Exception)
             {
                 // Log error
 
-                return false;
+                throw;
             }
         }
 
-        public bool OpenCurrentAccount(long CustomerNum)
+        public Account OpenCurrentAccount(long CustomerNum)
         {
             try
             {
                 long customerOverdraftLimit = this.CalculateCustomerOverdraftLimit(CustomerNum);
-                AccountRepo.OpenAccount(AccountType.Current, CustomerNum, Overdraft: customerOverdraftLimit);
-
-                return true;
+                
+                return AccountRepo.OpenAccount(AccountType.Current, CustomerNum, Overdraft: customerOverdraftLimit);
             }
             catch (Exception)
             {
                 // Log error
 
-                return false;
+                throw;
             }
         }
 
-        public long Deposit(long AccountId, long AmountToDeposit)
+        public Account Deposit(long AccountId, long AmountToDeposit)
         {
             Account target = AccountRepo.GetAccount(AccountId);
 
@@ -64,10 +61,21 @@ namespace RokkitBank.Domain
                 throw new AccountNotFoundException();
             }
 
-            return AccountRepo.Deposit(target, AmountToDeposit).Balance;
+            try
+            {
+                AccountRepo.Deposit(target, AmountToDeposit);
+
+                return target;
+            }
+            catch (Exception)
+            {
+                // Log error
+
+                throw;
+            }
         }
 
-        public long Withdraw(long AccountId, long AmountToWithdraw)
+        public Account Withdraw(long AccountId, long AmountToWithdraw)
         {
             Account target = AccountRepo.GetAccount(AccountId);
 
@@ -82,7 +90,7 @@ namespace RokkitBank.Domain
                 {
                     AccountRepo.Withdraw(target, AmountToWithdraw);
 
-                    return target.Balance;
+                    return target;
                 }
             }
             else if (target.Type == AccountType.Current)
@@ -91,7 +99,7 @@ namespace RokkitBank.Domain
                 {
                     AccountRepo.Withdraw(target, AmountToWithdraw);
 
-                    return target.Balance;
+                    return target;
                 }
             }
 

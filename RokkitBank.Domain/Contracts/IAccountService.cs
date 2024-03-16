@@ -1,17 +1,19 @@
 ﻿
+using RokkitBank.DB.Entities;
+
 namespace RokkitBank.Domain.Contracts
 {
     public interface IAccountService
     {
-        public bool OpenSavingsAccount(long CustomerNum, long AmountToDeposit);
+        public Account OpenSavingsAccount(long CustomerNum, long AmountToDeposit);
         // throws OpeningBalanceTooSmall
 
-        public bool OpenCurrentAccount(long CustomerNum);
+        public Account OpenCurrentAccount(long CustomerNum);
 
-        public long Withdraw(long AccountId, long AmountToWithdraw);
+        public Account Withdraw(long AccountId, long AmountToWithdraw);
         // throws AccountNotFoundException, WithdrawalAmountTooLargeException
 
-        public long Deposit(long AccountId, long AmountToDeposit);
+        public Account Deposit(long AccountId, long AmountToDeposit);
         //throws AccountNotFoundException
     }
 }
