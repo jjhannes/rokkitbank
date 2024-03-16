@@ -8,9 +8,9 @@ namespace RokkitBank.Domain.Exceptions
 {
     public class OpeningBalanceTooSmallException : Exception
     {
-        private int _minimumOpeningBalance;
+        private long _minimumOpeningBalance;
 
-        internal OpeningBalanceTooSmallException(int minimumOpeningBalance)
+        internal OpeningBalanceTooSmallException(long minimumOpeningBalance)
             : base($"Expected minimum opening balance of {minimumOpeningBalance}.")
         {
             this._minimumOpeningBalance = minimumOpeningBalance;

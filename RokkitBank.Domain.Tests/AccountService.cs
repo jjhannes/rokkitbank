@@ -22,7 +22,6 @@ namespace RokkitBank.Domain.Tests
             public void OpenLarge_ShouldPass()
             {
                 DefaultAccountService service = new DefaultAccountService();
-
                 bool accountCreated = service.OpenSavingsAccount(10, 1000);
 
                 Assert.IsTrue(accountCreated);
@@ -33,15 +32,12 @@ namespace RokkitBank.Domain.Tests
         public class OpenCurrent
         {
             [TestMethod]
-            public void OpenSmall_ShouldPass()
+            public void Open_ShouldPass()
             {
-                Assert.Fail();
-            }
+                DefaultAccountService service = new DefaultAccountService();
+                bool accountCreated = service.OpenCurrentAccount(10);
 
-            [TestMethod]
-            public void OpenLarge_ShouldPass()
-            {
-                Assert.Fail();
+                Assert.IsTrue(accountCreated);
             }
         }
 

@@ -8,7 +8,14 @@ namespace RokkitBank.Domain
 {
     public class DefaultAccountService : IAccountService
     {
-        private readonly int _minimumSavingsAccountCreateDeposit = 1000;
+        private readonly long _minimumSavingsAccountCreateDeposit = 1000;
+        private readonly int _maximumCurrentAccountOverdraft = 100000;
+
+        private long CalculateCustomerOverdraftLimit(long CustomerNum)
+        {
+            // Imagine some fancy-ass credit check business logic here
+            return new Random().Next(1, this._maximumCurrentAccountOverdraft);
+        }
 
         public bool OpenSavingsAccount(long CustomerNum, long AmountToDeposit)
         {
@@ -19,7 +26,7 @@ namespace RokkitBank.Domain
 
             try
             {
-                AccountRepo.OpenAccount(AccountType.Savings, CustomerNum, AmountToDeposit);
+                AccountRepo.OpenAccount(AccountType.Savings, CustomerNum, Balance: AmountToDeposit);
 
                 return true;
             }
@@ -33,7 +40,19 @@ namespace RokkitBank.Domain
 
         public bool OpenCurrentAccount(long CustomerNum)
         {
-            throw new NotImplementedException();
+            try
+            {
+                long customerOverdraftLimit = this.CalculateCustomerOverdraftLimit(CustomerNum);
+                AccountRepo.OpenAccount(AccountType.Current, CustomerNum, Overdraft: customerOverdraftLimit);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                // Log error
+
+                return false;
+            }
         }
 
         public long Deposit(long AccountId, long AmountToDeposit)

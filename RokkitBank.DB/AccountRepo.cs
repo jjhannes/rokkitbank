@@ -54,15 +54,15 @@ namespace RokkitBank.DB
             return AccountRepo._accountIdIncrementer;
         }
 
-        public static Account OpenAccount(AccountType Type, long CustomerNum, long Balance, long Overdraft = 0)
+        public static Account OpenAccount(AccountType Type, long CustomerNum, long Balance = 0, long Overdraft = 0)
         {
             Account newAccount = new Account()
             {
                 ID = AccountRepo.GetIncrementedAccountId(),
-                Type = AccountType.Current,
+                Type = Type,
                 CustomerNum = CustomerNum,
                 Balance = Balance,
-                Overdraft = 0
+                Overdraft = Overdraft
             };
 
             AccountRepo._accounts.Add(newAccount);
