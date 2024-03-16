@@ -1,3 +1,4 @@
+using RokkitBank.DB.Entities;
 using RokkitBank.Domain.Exceptions;
 
 namespace RokkitBank.Domain.Tests
@@ -11,20 +12,23 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void OpenSmall_ShouldThrowOpeningBalanceTooSmall()
             {
+                long startingBalance = 100;
                 DefaultAccountService service = new DefaultAccountService();
 
-                bool accountCreated = false;
-
-                Assert.ThrowsException<OpeningBalanceTooSmallException>(() => accountCreated = service.OpenSavingsAccount(10, 100));
+                Assert.ThrowsException<OpeningBalanceTooSmallException>(() => service.OpenSavingsAccount(10, startingBalance));
             }
 
             [TestMethod]
             public void OpenLarge_ShouldPass()
             {
+                long customerNum = 10;
+                long startingBalance = 1000;
                 DefaultAccountService service = new DefaultAccountService();
-                bool accountCreated = service.OpenSavingsAccount(10, 1000);
+                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
 
-                Assert.IsTrue(accountCreated);
+                Assert.IsNotNull(newAccount);
+                Assert.AreEqual(customerNum, newAccount.CustomerNum);
+                Assert.AreEqual(startingBalance, newAccount.Balance);
             }
         }
 
@@ -34,10 +38,12 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void Open_ShouldPass()
             {
+                long customerNum = 10;
                 DefaultAccountService service = new DefaultAccountService();
-                bool accountCreated = service.OpenCurrentAccount(10);
+                Account newAccount = service.OpenCurrentAccount(customerNum);
 
-                Assert.IsTrue(accountCreated);
+                Assert.IsNotNull(newAccount);
+                Assert.AreEqual(customerNum, newAccount.CustomerNum);
             }
         }
 
@@ -47,29 +53,39 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void DepositInvalidAccount_ShouldThrowAccountNotFound()
             {
+                long invalidAccountId = 10;
+                long depositAmount = 1000;
                 DefaultAccountService service = new DefaultAccountService();
 
-                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(10, 1000));
+                Assert.ThrowsException<AccountNotFoundException>(() => service.Deposit(invalidAccountId, depositAmount));
             }
 
             [TestMethod]
             public void DepositSmall_ShouldPass()
             {
+                long customerNum = 10;
+                long startingBalance = 1000;
+                long depositAmount = 100;
                 DefaultAccountService service = new DefaultAccountService();
-                long balance = service.Deposit(1, 100);
+                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
+                newAccount = service.Deposit(newAccount.ID, depositAmount);
 
-                Assert.IsTrue(balance > 0);
-                Assert.AreEqual(2100, balance);
+                Assert.IsTrue(newAccount.Balance > 0);
+                Assert.AreEqual(startingBalance + depositAmount, newAccount.Balance);
             }
 
             [TestMethod]
             public void DepositLarge_ShouldPass()
             {
+                long customerNum = 10;
+                long startingBalance = 1000;
+                long depositAmount = 4250;
                 DefaultAccountService service = new DefaultAccountService();
-                long balance = service.Deposit(2, 4250);
+                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
+                newAccount = service.Deposit(newAccount.ID, depositAmount);
 
-                Assert.IsTrue(balance > 0);
-                Assert.AreEqual(9250, balance);
+                Assert.IsTrue(newAccount.Balance > 0);
+                Assert.AreEqual(startingBalance + depositAmount, newAccount.Balance);
             }
         }
 
@@ -79,27 +95,37 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void DepositInvalidAccount_ShouldThrowAccountNotFound()
             {
+                long invalidAccountId = 9999;
+                long depositAmount = 3000;
                 DefaultAccountService service = new DefaultAccountService();
 
-                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(10, 1000));
+                Assert.ThrowsException<AccountNotFoundException>(() => service.Deposit(invalidAccountId, depositAmount));
             }
 
             [TestMethod]
             public void DepositSmall_ShouldPass()
             {
+                long customerNum = 10;
+                long depositAmount = 100;
                 DefaultAccountService service = new DefaultAccountService();
-                long balance = service.Deposit(3, 100);
+                Account newAccount = service.OpenCurrentAccount(customerNum);
+                newAccount = service.Deposit(newAccount.ID, depositAmount);
 
-                Assert.AreEqual(1100, balance);
+                Assert.AreEqual(depositAmount, newAccount.Balance);
             }
 
             [TestMethod]
             public void DepositLarge_ShouldPass()
             {
+                long customerNum = 10;
+                long withdrawAmount = 3000;
+                long depositAmount = 100;
                 DefaultAccountService service = new DefaultAccountService();
-                long balance = service.Deposit(4, 3975);
+                Account newAccount = service.OpenCurrentAccount(customerNum);
+                newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
+                newAccount = service.Deposit(newAccount.ID, depositAmount);
 
-                Assert.AreEqual(-1025, balance);
+                Assert.AreEqual(-withdrawAmount + depositAmount, newAccount.Balance);
             }
         }
 
@@ -109,27 +135,39 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawInvalidAccount_ShouldThrowAccountNotFound()
             {
+                long invalidAccountId = 9999;
+                long withdrawAmount = 1000;
                 DefaultAccountService service = new DefaultAccountService();
 
-                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(10, 1000));
+                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(invalidAccountId, withdrawAmount));
             }
 
             [TestMethod]
             public void WithdrawSmall_ShouldPass()
             {
+                long customerNum = 10;
+                long startingBalance = 1000;
+                long depositAmount = 3000;
+                long withdrawAmount = 100;
                 DefaultAccountService service = new DefaultAccountService();
-                long balance = service.Withdraw(1, 100);
+                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
+                newAccount = service.Deposit(newAccount.ID, depositAmount);
+                newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
 
-                Assert.IsTrue(balance > 0);
-                Assert.AreEqual(1900, balance);
+                Assert.IsTrue(newAccount.Balance > 0);
+                Assert.AreEqual(startingBalance + depositAmount - withdrawAmount, newAccount.Balance);
             }
 
             [TestMethod]
             public void WithdrawLarge_ShouldThrowWithdrawalAmountTooLarge()
             {
+                long customerNum = 10;
+                long startingBalance = 1000;
+                long withdrawAmount = 6000;
                 DefaultAccountService service = new DefaultAccountService();
-                
-                Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => service.Withdraw(2, 6000));
+                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
+
+                Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => service.Withdraw(newAccount.ID, withdrawAmount));
             }
         }
 
@@ -139,36 +177,56 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawInvalidAccount_ShouldThrowAccountNotFound()
             {
+                long invalidAccountId = 9999;
+                long withdrawAmount = 1000;
                 DefaultAccountService service = new DefaultAccountService();
 
-                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(10, 1000));
+                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(invalidAccountId, withdrawAmount));
             }
 
             [TestMethod]
             public void WithdrawLessThanBalance_ShouldPass()
             {
+                long customerNum = 10;
+                long depositAmount = 3000;
+                long withdrawAmount = 100;
                 DefaultAccountService service = new DefaultAccountService();
-                long balance = service.Withdraw(3, 100);
+                Account newAccount = service.OpenCurrentAccount(customerNum);
+                newAccount = service.Deposit(newAccount.ID, depositAmount);
+                newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
 
-                Assert.IsTrue(balance > 0);
-                Assert.AreEqual(900, balance);
+                Assert.IsTrue(newAccount.Balance > 0);
+                Assert.AreEqual(depositAmount - withdrawAmount, newAccount.Balance);
             }
 
             [TestMethod]
             public void WithdrawLessThanOverdraft_ShouldPass()
             {
+                long customerNum = 10;
                 DefaultAccountService service = new DefaultAccountService();
-                long balance = service.Withdraw(4, 2000);
+                Account newAccount = service.OpenCurrentAccount(customerNum);
 
-                Assert.AreEqual(-7000, balance);
+                long withdrawAmount1 = (long)Math.Truncate(newAccount.Overdraft / 2d);
+                long withdrawAmount2 = (long)Math.Truncate(withdrawAmount1 / 2d);
+
+                newAccount = service.Withdraw(newAccount.ID, withdrawAmount1);
+                newAccount = service.Withdraw(newAccount.ID, withdrawAmount2);
+
+                Assert.AreEqual(0 - withdrawAmount1 - withdrawAmount2, newAccount.Balance);
             }
 
             [TestMethod]
             public void WithdrawMoreThanOverdraft_ShouldThrowWithdrawalAmountTooLarge()
             {
+                long customerNum = 10;
                 DefaultAccountService service = new DefaultAccountService();
+                Account newAccount = service.OpenCurrentAccount(customerNum);
 
-                Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => service.Withdraw(4, 20000));
+                long withdrawAmount = (long)Math.Truncate(newAccount.Overdraft / 2d);
+
+                newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
+
+                Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => service.Withdraw(newAccount.ID, withdrawAmount * 2));
             }
         }
     }
