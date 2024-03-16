@@ -1,5 +1,5 @@
 ﻿
-namespace RokkitBank.Domain
+namespace RokkitBank.Domain.Contracts
 {
     public interface IAccountService
     {

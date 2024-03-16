@@ -1,3 +1,5 @@
+using RokkitBank.Domain.Exceptions;
+
 namespace RokkitBank.Domain.Tests
 {
     [TestClass]
@@ -9,7 +11,9 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void OpenSmall_ShouldThrowOpeningBalanceTooSmall()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+
+                Assert.ThrowsException<OpeningBalanceTooSmallException>(() => service.OpenSavingsAccount(10, 100));
             }
 
             [TestMethod]
