@@ -13,7 +13,9 @@ namespace RokkitBank.Domain.Tests
             {
                 DefaultAccountService service = new DefaultAccountService();
 
-                Assert.ThrowsException<OpeningBalanceTooSmallException>(() => service.OpenSavingsAccount(10, 100));
+                bool accountCreated = false;
+
+                Assert.ThrowsException<OpeningBalanceTooSmallException>(() => accountCreated = service.OpenSavingsAccount(10, 100));
             }
 
             [TestMethod]
@@ -21,9 +23,9 @@ namespace RokkitBank.Domain.Tests
             {
                 DefaultAccountService service = new DefaultAccountService();
 
-                service.OpenSavingsAccount(10, 1000);
+                bool accountCreated = service.OpenSavingsAccount(10, 1000);
 
-                Assert.IsTrue(true);
+                Assert.IsTrue(accountCreated);
             }
         }
 

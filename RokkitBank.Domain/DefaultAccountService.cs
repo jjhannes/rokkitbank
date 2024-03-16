@@ -10,27 +10,38 @@ namespace RokkitBank.Domain
     {
         private readonly int _minimumSavingsAccountCreateDeposit = 1000;
 
-        public void OpenSavingsAccount(long CustomerNum, long AmountToDeposit)
+        public bool OpenSavingsAccount(long CustomerNum, long AmountToDeposit)
         {
             if (AmountToDeposit < this._minimumSavingsAccountCreateDeposit)
             {
                 throw new OpeningBalanceTooSmallException(this._minimumSavingsAccountCreateDeposit);
             }
 
-            AccountRepo.OpenAccount(AccountType.Savings, CustomerNum, AmountToDeposit);
+            try
+            {
+                AccountRepo.OpenAccount(AccountType.Savings, CustomerNum, AmountToDeposit);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                // Log error
+
+                return false;
+            }
         }
 
-        public void OpenCurrentAccount(long CustomerNum)
+        public bool OpenCurrentAccount(long CustomerNum)
         {
             throw new NotImplementedException();
         }
 
-        public void Deposit(long AccountId, long AmountToDeposit)
+        public long Deposit(long AccountId, long AmountToDeposit)
         {
             throw new NotImplementedException();
         }
 
-        public void Withdraw(long AccountId, long AmountToWithdraw)
+        public long Withdraw(long AccountId, long AmountToWithdraw)
         {
             throw new NotImplementedException();
         }
