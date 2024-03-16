@@ -93,7 +93,11 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void WithdrawSmall_ShouldPass()
             {
-                Assert.Fail();
+                DefaultAccountService service = new DefaultAccountService();
+                long balance = service.Withdraw(1, 100);
+
+                Assert.IsTrue(balance > 0);
+                Assert.AreEqual(1900, balance);
             }
 
             [TestMethod]

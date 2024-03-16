@@ -59,12 +59,34 @@ namespace RokkitBank.Domain
         {
             Account target = AccountRepo.GetAccount(AccountId);
 
+            if (target == null)
+            {
+                throw new AccountNotFoundException();
+            }
+
             return AccountRepo.Deposit(target, AmountToDeposit).Balance;
         }
 
         public long Withdraw(long AccountId, long AmountToWithdraw)
         {
-            throw new NotImplementedException();
+            Account target = AccountRepo.GetAccount(AccountId);
+
+            if (target == null)
+            {
+                throw new AccountNotFoundException();
+            }
+
+            if (target.Type == AccountType.Savings)
+            {
+                if (target.Balance >= AmountToWithdraw)
+                {
+                    AccountRepo.Withdraw();
+
+                    return target.Balance;
+                }
+            }
+
+            throw new WithdrawalAmountTooLargeException();
         }
     }
 }
