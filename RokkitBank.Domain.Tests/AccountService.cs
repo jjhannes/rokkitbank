@@ -1,11 +1,26 @@
-using RokkitBank.DB.Entities;
-using RokkitBank.Domain.Exceptions;
+using RokkitBank.Contracts.Dtos;
+using RokkitBank.Contracts.Entities;
+using RokkitBank.Contracts.Exceptions;
 
 namespace RokkitBank.Domain.Tests
 {
     [TestClass]
     public class AccountService
     {
+        private readonly DefaultAccountService _accountService;
+
+        public AccountService()
+        {
+            var seed = new List<Account>()
+            {
+                new SavingsAccount(1, 2000, 1000),
+                new SavingsAccount(2, 5000, 1000),
+                new CurrentAccount(3, 1000, -10000),
+                new CurrentAccount(4, -5000, -20000)
+            };
+            this._accountService = new DefaultAccountService(Seed: seed);
+        }
+
         [TestClass]
         public class OpenSavings()
         {
@@ -28,7 +43,7 @@ namespace RokkitBank.Domain.Tests
 
                 Assert.IsNotNull(newAccount);
                 Assert.AreEqual(customerNum, newAccount.CustomerNum);
-                Assert.AreEqual(startingBalance, newAccount.Balance);
+                Assert.AreEqual(startingBalance, newAccount.CurrentBalance);
             }
         }
 
@@ -53,7 +68,7 @@ namespace RokkitBank.Domain.Tests
             [TestMethod]
             public void DepositInvalidAccount_ShouldThrowAccountNotFound()
             {
-                long invalidAccountId = 10;
+                long invalidAccountId = 9999;
                 long depositAmount = 1000;
                 DefaultAccountService service = new DefaultAccountService();
 
@@ -70,8 +85,8 @@ namespace RokkitBank.Domain.Tests
                 Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
                 newAccount = service.Deposit(newAccount.ID, depositAmount);
 
-                Assert.IsTrue(newAccount.Balance > 0);
-                Assert.AreEqual(startingBalance + depositAmount, newAccount.Balance);
+                Assert.IsTrue(newAccount.CurrentBalance > 0);
+                Assert.AreEqual(startingBalance + depositAmount, newAccount.CurrentBalance);
             }
 
             [TestMethod]
@@ -84,8 +99,8 @@ namespace RokkitBank.Domain.Tests
                 Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
                 newAccount = service.Deposit(newAccount.ID, depositAmount);
 
-                Assert.IsTrue(newAccount.Balance > 0);
-                Assert.AreEqual(startingBalance + depositAmount, newAccount.Balance);
+                Assert.IsTrue(newAccount.CurrentBalance > 0);
+                Assert.AreEqual(startingBalance + depositAmount, newAccount.CurrentBalance);
             }
         }
 
@@ -111,7 +126,7 @@ namespace RokkitBank.Domain.Tests
                 Account newAccount = service.OpenCurrentAccount(customerNum);
                 newAccount = service.Deposit(newAccount.ID, depositAmount);
 
-                Assert.AreEqual(depositAmount, newAccount.Balance);
+                Assert.AreEqual(depositAmount, newAccount.CurrentBalance);
             }
 
             [TestMethod]
@@ -125,7 +140,7 @@ namespace RokkitBank.Domain.Tests
                 newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
                 newAccount = service.Deposit(newAccount.ID, depositAmount);
 
-                Assert.AreEqual(-withdrawAmount + depositAmount, newAccount.Balance);
+                Assert.AreEqual(-withdrawAmount + depositAmount, newAccount.CurrentBalance);
             }
         }
 
@@ -154,8 +169,8 @@ namespace RokkitBank.Domain.Tests
                 newAccount = service.Deposit(newAccount.ID, depositAmount);
                 newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
 
-                Assert.IsTrue(newAccount.Balance > 0);
-                Assert.AreEqual(startingBalance + depositAmount - withdrawAmount, newAccount.Balance);
+                Assert.IsTrue(newAccount.CurrentBalance > 0);
+                Assert.AreEqual(startingBalance + depositAmount - withdrawAmount, newAccount.CurrentBalance);
             }
 
             [TestMethod]
@@ -195,8 +210,8 @@ namespace RokkitBank.Domain.Tests
                 newAccount = service.Deposit(newAccount.ID, depositAmount);
                 newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
 
-                Assert.IsTrue(newAccount.Balance > 0);
-                Assert.AreEqual(depositAmount - withdrawAmount, newAccount.Balance);
+                Assert.IsTrue(newAccount.CurrentBalance > 0);
+                Assert.AreEqual(depositAmount - withdrawAmount, newAccount.CurrentBalance);
             }
 
             [TestMethod]
@@ -206,13 +221,13 @@ namespace RokkitBank.Domain.Tests
                 DefaultAccountService service = new DefaultAccountService();
                 Account newAccount = service.OpenCurrentAccount(customerNum);
 
-                long withdrawAmount1 = (long)Math.Truncate(newAccount.Overdraft / 2d);
+                long withdrawAmount1 = (long)Math.Truncate(Math.Abs(newAccount.MinimumBalance) / 2d);
                 long withdrawAmount2 = (long)Math.Truncate(withdrawAmount1 / 2d);
 
                 newAccount = service.Withdraw(newAccount.ID, withdrawAmount1);
                 newAccount = service.Withdraw(newAccount.ID, withdrawAmount2);
 
-                Assert.AreEqual(0 - withdrawAmount1 - withdrawAmount2, newAccount.Balance);
+                Assert.AreEqual(0 - withdrawAmount1 - withdrawAmount2, newAccount.CurrentBalance);
             }
 
             [TestMethod]
@@ -222,7 +237,7 @@ namespace RokkitBank.Domain.Tests
                 DefaultAccountService service = new DefaultAccountService();
                 Account newAccount = service.OpenCurrentAccount(customerNum);
 
-                long withdrawAmount = (long)Math.Truncate(newAccount.Overdraft / 2d);
+                long withdrawAmount = (long)Math.Truncate(Math.Abs(newAccount.MinimumBalance) / 2d);
 
                 newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
 

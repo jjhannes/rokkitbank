@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RokkitBank.Domain.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RokkitBank.DB", "RokkitBank.DB\RokkitBank.DB.csproj", "{541CC92E-A6C0-4332-A8B9-ECCB957DCFB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RokkitBank.Contracts", "RokkitBank.Contracts\RokkitBank.Contracts.csproj", "{A7CF5D5F-BFD8-4F6B-B74E-ED6D78E47DD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{541CC92E-A6C0-4332-A8B9-ECCB957DCFB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{541CC92E-A6C0-4332-A8B9-ECCB957DCFB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{541CC92E-A6C0-4332-A8B9-ECCB957DCFB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7CF5D5F-BFD8-4F6B-B74E-ED6D78E47DD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7CF5D5F-BFD8-4F6B-B74E-ED6D78E47DD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7CF5D5F-BFD8-4F6B-B74E-ED6D78E47DD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7CF5D5F-BFD8-4F6B-B74E-ED6D78E47DD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

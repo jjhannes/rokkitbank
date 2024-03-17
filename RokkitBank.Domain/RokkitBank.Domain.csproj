@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RokkitBank.Contracts\RokkitBank.Contracts.csproj" />
     <ProjectReference Include="..\RokkitBank.DB\RokkitBank.DB.csproj" />
   </ItemGroup>
 

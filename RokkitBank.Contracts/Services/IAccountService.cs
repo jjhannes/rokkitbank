@@ -1,7 +1,7 @@
 ﻿
-using RokkitBank.DB.Entities;
+using RokkitBank.Contracts.Entities;
 
-namespace RokkitBank.Domain.Contracts
+namespace RokkitBank.Contracts.Services
 {
     public interface IAccountService
     {

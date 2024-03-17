@@ -1,15 +1,31 @@
 ﻿
+using RokkitBank.Contracts.Dtos;
+using RokkitBank.Contracts.Entities;
 using RokkitBank.DB;
-using RokkitBank.DB.Entities;
-using RokkitBank.Domain.Contracts;
-using RokkitBank.Domain.Exceptions;
+using RokkitBank.Contracts.Services;
+using RokkitBank.Contracts.Exceptions;
 
 namespace RokkitBank.Domain
 {
     public class DefaultAccountService : IAccountService
     {
-        private readonly long _minimumSavingsAccountCreateDeposit = 1000;
-        private readonly int _maximumCurrentAccountOverdraft = 100000;
+        private readonly int _minimumSavingsAccountBalance;
+        private readonly int _minimumSavingsAccountCreateDeposit;
+        private readonly int _maximumCurrentAccountOverdraft;
+
+        public DefaultAccountService(
+            int? MinSavingsBalance = null,
+            int? MinSavingsOpeningBalance = null,
+            int? MaxCurrentOverdraft = null,
+            List<Account>? Seed = null)
+        {
+            this._minimumSavingsAccountBalance = MinSavingsBalance ?? 100;
+            this._minimumSavingsAccountCreateDeposit = MinSavingsOpeningBalance ?? 100;
+            this._maximumCurrentAccountOverdraft = MaxCurrentOverdraft ?? 100000;
+
+            if (Seed != null)
+                AccountRepo.SeedDB(Seed);
+        }
 
         private long CalculateCustomerOverdraftLimit(long CustomerNum)
         {
@@ -24,9 +40,11 @@ namespace RokkitBank.Domain
                 throw new OpeningBalanceTooSmallException(this._minimumSavingsAccountCreateDeposit);
             }
 
+            SavingsAccount account = new SavingsAccount(CustomerNum, AmountToDeposit, this._minimumSavingsAccountBalance);
+
             try
             {
-                return AccountRepo.OpenAccount(AccountType.Savings, CustomerNum, Balance: AmountToDeposit);
+                return AccountRepo.AddAccount(account);
             }
             catch (Exception)
             {
@@ -38,11 +56,13 @@ namespace RokkitBank.Domain
 
         public Account OpenCurrentAccount(long CustomerNum)
         {
+            long customerOverdraftLimit = this.CalculateCustomerOverdraftLimit(CustomerNum);
+
+            CurrentAccount account = new CurrentAccount(CustomerNum, 0, -customerOverdraftLimit);
+
             try
             {
-                long customerOverdraftLimit = this.CalculateCustomerOverdraftLimit(CustomerNum);
-                
-                return AccountRepo.OpenAccount(AccountType.Current, CustomerNum, Overdraft: customerOverdraftLimit);
+                return AccountRepo.AddAccount(account);
             }
             catch (Exception)
             {
@@ -54,7 +74,7 @@ namespace RokkitBank.Domain
 
         public Account Deposit(long AccountId, long AmountToDeposit)
         {
-            Account target = AccountRepo.GetAccount(AccountId);
+            Account? target = AccountRepo.GetAccount(AccountId);
 
             if (target == null)
             {
@@ -63,7 +83,7 @@ namespace RokkitBank.Domain
 
             try
             {
-                AccountRepo.Deposit(target, AmountToDeposit);
+                target.Deposit(AmountToDeposit);
 
                 return target;
             }
@@ -77,33 +97,16 @@ namespace RokkitBank.Domain
 
         public Account Withdraw(long AccountId, long AmountToWithdraw)
         {
-            Account target = AccountRepo.GetAccount(AccountId);
+            Account? target = AccountRepo.GetAccount(AccountId);
 
             if (target == null)
             {
                 throw new AccountNotFoundException();
             }
 
-            if (target.Type == AccountType.Savings)
-            {
-                if (target.Balance >= AmountToWithdraw)
-                {
-                    AccountRepo.Withdraw(target, AmountToWithdraw);
+            target.Withdraw(AmountToWithdraw);
 
-                    return target;
-                }
-            }
-            else if (target.Type == AccountType.Current)
-            {
-                if (target.Balance - AmountToWithdraw > (-target.Overdraft))
-                {
-                    AccountRepo.Withdraw(target, AmountToWithdraw);
-
-                    return target;
-                }
-            }
-
-            throw new WithdrawalAmountTooLargeException();
+            return target;
         }
     }
 }
