@@ -11,238 +11,216 @@ namespace RokkitBank.Domain.Tests
 
         public AccountService()
         {
+            int minSavingsBalance = 1000;
+            int minSavingsOpeningBalance = 1000;
+            int maxCurrentOverdraft = 100000;
             var seed = new List<Account>()
             {
-                new SavingsAccount(1, 2000, 1000),
-                new SavingsAccount(2, 5000, 1000),
+                new SavingsAccount(1, 2000, minSavingsBalance),
+                new SavingsAccount(2, 5000, minSavingsBalance),
                 new CurrentAccount(3, 1000, -10000),
                 new CurrentAccount(4, -5000, -20000)
             };
-            this._accountService = new DefaultAccountService(Seed: seed);
+            this._accountService = new DefaultAccountService(
+                MinSavingsBalance: minSavingsBalance,
+                MinSavingsOpeningBalance: minSavingsOpeningBalance,
+                MaxCurrentOverdraft: maxCurrentOverdraft,
+                Seed: seed);
         }
 
-        [TestClass]
-        public class OpenSavings()
+        [TestMethod]
+        public void OpenSavings_TooSmall_ShouldThrowOpeningBalanceTooSmall()
         {
-            [TestMethod]
-            public void OpenSmall_ShouldThrowOpeningBalanceTooSmall()
-            {
-                long startingBalance = 100;
-                DefaultAccountService service = new DefaultAccountService();
+            long startingBalance = 100;
 
-                Assert.ThrowsException<OpeningBalanceTooSmallException>(() => service.OpenSavingsAccount(10, startingBalance));
-            }
-
-            [TestMethod]
-            public void OpenLarge_ShouldPass()
-            {
-                long customerNum = 10;
-                long startingBalance = 1000;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
-
-                Assert.IsNotNull(newAccount);
-                Assert.AreEqual(customerNum, newAccount.CustomerNum);
-                Assert.AreEqual(startingBalance, newAccount.CurrentBalance);
-            }
+            Assert.ThrowsException<OpeningBalanceTooSmallException>(() => this._accountService.OpenSavingsAccount(10, startingBalance));
         }
 
-        [TestClass]
-        public class OpenCurrent
+        [TestMethod]
+        public void OpenSavings_LargeEnough_ShouldPass()
         {
-            [TestMethod]
-            public void Open_ShouldPass()
-            {
-                long customerNum = 10;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenCurrentAccount(customerNum);
+            long customerNum = 10;
+            long startingBalance = 1000;
 
-                Assert.IsNotNull(newAccount);
-                Assert.AreEqual(customerNum, newAccount.CustomerNum);
-            }
+            Account newAccount = this._accountService.OpenSavingsAccount(customerNum, startingBalance);
+
+            Assert.IsNotNull(newAccount);
+            Assert.AreEqual(customerNum, newAccount.CustomerNum);
+            Assert.AreEqual(startingBalance, newAccount.CurrentBalance);
         }
 
-        [TestClass]
-        public class DepositIntoSavings
+        [TestMethod]
+        public void OpenCurrent_ShouldPass()
         {
-            [TestMethod]
-            public void DepositInvalidAccount_ShouldThrowAccountNotFound()
-            {
-                long invalidAccountId = 9999;
-                long depositAmount = 1000;
-                DefaultAccountService service = new DefaultAccountService();
+            long customerNum = 10;
 
-                Assert.ThrowsException<AccountNotFoundException>(() => service.Deposit(invalidAccountId, depositAmount));
-            }
+            Account newAccount = this._accountService.OpenCurrentAccount(customerNum);
 
-            [TestMethod]
-            public void DepositSmall_ShouldPass()
-            {
-                long customerNum = 10;
-                long startingBalance = 1000;
-                long depositAmount = 100;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
-                newAccount = service.Deposit(newAccount.ID, depositAmount);
-
-                Assert.IsTrue(newAccount.CurrentBalance > 0);
-                Assert.AreEqual(startingBalance + depositAmount, newAccount.CurrentBalance);
-            }
-
-            [TestMethod]
-            public void DepositLarge_ShouldPass()
-            {
-                long customerNum = 10;
-                long startingBalance = 1000;
-                long depositAmount = 4250;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
-                newAccount = service.Deposit(newAccount.ID, depositAmount);
-
-                Assert.IsTrue(newAccount.CurrentBalance > 0);
-                Assert.AreEqual(startingBalance + depositAmount, newAccount.CurrentBalance);
-            }
+            Assert.IsNotNull(newAccount);
+            Assert.AreEqual(customerNum, newAccount.CustomerNum);
         }
 
-        [TestClass]
-        public class DepositIntoCurrent
+        [TestMethod]
+        public void DepositIntoSavings_InvalidAccount_ShouldThrowAccountNotFound()
         {
-            [TestMethod]
-            public void DepositInvalidAccount_ShouldThrowAccountNotFound()
-            {
-                long invalidAccountId = 9999;
-                long depositAmount = 3000;
-                DefaultAccountService service = new DefaultAccountService();
+            long invalidAccountId = 9999;
+            long depositAmount = 1000;
 
-                Assert.ThrowsException<AccountNotFoundException>(() => service.Deposit(invalidAccountId, depositAmount));
-            }
-
-            [TestMethod]
-            public void DepositSmall_ShouldPass()
-            {
-                long customerNum = 10;
-                long depositAmount = 100;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenCurrentAccount(customerNum);
-                newAccount = service.Deposit(newAccount.ID, depositAmount);
-
-                Assert.AreEqual(depositAmount, newAccount.CurrentBalance);
-            }
-
-            [TestMethod]
-            public void DepositLarge_ShouldPass()
-            {
-                long customerNum = 10;
-                long withdrawAmount = 3000;
-                long depositAmount = 100;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenCurrentAccount(customerNum);
-                newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
-                newAccount = service.Deposit(newAccount.ID, depositAmount);
-
-                Assert.AreEqual(-withdrawAmount + depositAmount, newAccount.CurrentBalance);
-            }
+            Assert.ThrowsException<AccountNotFoundException>(() => this._accountService.Deposit(invalidAccountId, depositAmount));
         }
 
-        [TestClass]
-        public class WithdrawFromSavings
+        [TestMethod]
+        public void DepositIntoSavings_Small_ShouldPass()
         {
-            [TestMethod]
-            public void WithdrawInvalidAccount_ShouldThrowAccountNotFound()
-            {
-                long invalidAccountId = 9999;
-                long withdrawAmount = 1000;
-                DefaultAccountService service = new DefaultAccountService();
+            long customerNum = 10;
+            long startingBalance = 1000;
+            long depositAmount = 100;
 
-                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(invalidAccountId, withdrawAmount));
-            }
+            Account newAccount = this._accountService.OpenSavingsAccount(customerNum, startingBalance);
+            newAccount = this._accountService.Deposit(newAccount.ID, depositAmount);
 
-            [TestMethod]
-            public void WithdrawSmall_ShouldPass()
-            {
-                long customerNum = 10;
-                long startingBalance = 1000;
-                long depositAmount = 3000;
-                long withdrawAmount = 100;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
-                newAccount = service.Deposit(newAccount.ID, depositAmount);
-                newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
-
-                Assert.IsTrue(newAccount.CurrentBalance > 0);
-                Assert.AreEqual(startingBalance + depositAmount - withdrawAmount, newAccount.CurrentBalance);
-            }
-
-            [TestMethod]
-            public void WithdrawLarge_ShouldThrowWithdrawalAmountTooLarge()
-            {
-                long customerNum = 10;
-                long startingBalance = 1000;
-                long withdrawAmount = 6000;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenSavingsAccount(customerNum, startingBalance);
-
-                Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => service.Withdraw(newAccount.ID, withdrawAmount));
-            }
+            Assert.IsTrue(newAccount.CurrentBalance > 0);
+            Assert.AreEqual(startingBalance + depositAmount, newAccount.CurrentBalance);
         }
 
-        [TestClass]
-        public class WithdrawFromCurrent
+        [TestMethod]
+        public void DepositIntoSavings_Large_ShouldPass()
         {
-            [TestMethod]
-            public void WithdrawInvalidAccount_ShouldThrowAccountNotFound()
-            {
-                long invalidAccountId = 9999;
-                long withdrawAmount = 1000;
-                DefaultAccountService service = new DefaultAccountService();
+            long customerNum = 10;
+            long startingBalance = 1000;
+            long depositAmount = 4250;
 
-                Assert.ThrowsException<AccountNotFoundException>(() => service.Withdraw(invalidAccountId, withdrawAmount));
-            }
+            Account newAccount = this._accountService.OpenSavingsAccount(customerNum, startingBalance);
+            newAccount = this._accountService.Deposit(newAccount.ID, depositAmount);
 
-            [TestMethod]
-            public void WithdrawLessThanBalance_ShouldPass()
-            {
-                long customerNum = 10;
-                long depositAmount = 3000;
-                long withdrawAmount = 100;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenCurrentAccount(customerNum);
-                newAccount = service.Deposit(newAccount.ID, depositAmount);
-                newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
+            Assert.IsTrue(newAccount.CurrentBalance > 0);
+            Assert.AreEqual(startingBalance + depositAmount, newAccount.CurrentBalance);
+        }
 
-                Assert.IsTrue(newAccount.CurrentBalance > 0);
-                Assert.AreEqual(depositAmount - withdrawAmount, newAccount.CurrentBalance);
-            }
+        [TestMethod]
+        public void DepositIntoCurrent_InvalidAccount_ShouldThrowAccountNotFound()
+        {
+            long invalidAccountId = 9999;
+            long depositAmount = 3000;
 
-            [TestMethod]
-            public void WithdrawLessThanOverdraft_ShouldPass()
-            {
-                long customerNum = 10;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenCurrentAccount(customerNum);
+            Assert.ThrowsException<AccountNotFoundException>(() => this._accountService.Deposit(invalidAccountId, depositAmount));
+        }
 
-                long withdrawAmount1 = (long)Math.Truncate(Math.Abs(newAccount.MinimumBalance) / 2d);
-                long withdrawAmount2 = (long)Math.Truncate(withdrawAmount1 / 2d);
+        [TestMethod]
+        public void DepositIntoCurrent_Small_ShouldPass()
+        {
+            long customerNum = 10;
+            long depositAmount = 100;
 
-                newAccount = service.Withdraw(newAccount.ID, withdrawAmount1);
-                newAccount = service.Withdraw(newAccount.ID, withdrawAmount2);
+            Account newAccount = this._accountService.OpenCurrentAccount(customerNum);
+            newAccount = this._accountService.Deposit(newAccount.ID, depositAmount);
 
-                Assert.AreEqual(0 - withdrawAmount1 - withdrawAmount2, newAccount.CurrentBalance);
-            }
+            Assert.AreEqual(depositAmount, newAccount.CurrentBalance);
+        }
 
-            [TestMethod]
-            public void WithdrawMoreThanOverdraft_ShouldThrowWithdrawalAmountTooLarge()
-            {
-                long customerNum = 10;
-                DefaultAccountService service = new DefaultAccountService();
-                Account newAccount = service.OpenCurrentAccount(customerNum);
+        [TestMethod]
+        public void DepositIntoCurrent_Large_ShouldPass()
+        {
+            long customerNum = 10;
+            long withdrawAmount = 3000;
+            long depositAmount = 100;
 
-                long withdrawAmount = (long)Math.Truncate(Math.Abs(newAccount.MinimumBalance) / 2d);
+            Account newAccount = this._accountService.OpenCurrentAccount(customerNum);
+            newAccount = this._accountService.Withdraw(newAccount.ID, withdrawAmount);
+            newAccount = this._accountService.Deposit(newAccount.ID, depositAmount);
 
-                newAccount = service.Withdraw(newAccount.ID, withdrawAmount);
+            Assert.AreEqual(-withdrawAmount + depositAmount, newAccount.CurrentBalance);
+        }
 
-                Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => service.Withdraw(newAccount.ID, withdrawAmount * 2));
-            }
+        [TestMethod]
+        public void WithdrawFromSavings_InvalidAccount_ShouldThrowAccountNotFound()
+        {
+            long invalidAccountId = 9999;
+            long withdrawAmount = 1000;
+
+            Assert.ThrowsException<AccountNotFoundException>(() => this._accountService.Withdraw(invalidAccountId, withdrawAmount));
+        }
+
+        [TestMethod]
+        public void WithdrawFromSavings_SmallEnough_ShouldPass()
+        {
+            long customerNum = 10;
+            long startingBalance = 1000;
+            long depositAmount = 3000;
+            long withdrawAmount = 100;
+
+            Account newAccount = this._accountService.OpenSavingsAccount(customerNum, startingBalance);
+            newAccount = this._accountService.Deposit(newAccount.ID, depositAmount);
+            newAccount = this._accountService.Withdraw(newAccount.ID, withdrawAmount);
+
+            Assert.IsTrue(newAccount.CurrentBalance > 0);
+            Assert.AreEqual(startingBalance + depositAmount - withdrawAmount, newAccount.CurrentBalance);
+        }
+
+        [TestMethod]
+        public void WithdrawFromSavings_TooLarge_ShouldThrowWithdrawalAmountTooLarge()
+        {
+            long customerNum = 10;
+            long startingBalance = 1000;
+            long withdrawAmount = 6000;
+
+            Account newAccount = this._accountService.OpenSavingsAccount(customerNum, startingBalance);
+
+            Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => this._accountService.Withdraw(newAccount.ID, withdrawAmount));
+        }
+
+        [TestMethod]
+        public void WithdrawFromCurrent_InvalidAccount_ShouldThrowAccountNotFound()
+        {
+            long invalidAccountId = 9999;
+            long withdrawAmount = 1000;
+
+            Assert.ThrowsException<AccountNotFoundException>(() => this._accountService.Withdraw(invalidAccountId, withdrawAmount));
+        }
+
+        [TestMethod]
+        public void WithdrawFromCurrent_LessThanBalance_ShouldPass()
+        {
+            long customerNum = 10;
+            long depositAmount = 3000;
+            long withdrawAmount = 100;
+
+            Account newAccount = this._accountService.OpenCurrentAccount(customerNum);
+            newAccount = this._accountService.Deposit(newAccount.ID, depositAmount);
+            newAccount = this._accountService.Withdraw(newAccount.ID, withdrawAmount);
+
+            Assert.IsTrue(newAccount.CurrentBalance > 0);
+            Assert.AreEqual(depositAmount - withdrawAmount, newAccount.CurrentBalance);
+        }
+
+        [TestMethod]
+        public void WithdrawFromCurrent_LessThanOverdraft_ShouldPass()
+        {
+            long customerNum = 10;
+
+            Account newAccount = this._accountService.OpenCurrentAccount(customerNum);
+
+            long withdrawAmount1 = (long)Math.Truncate(Math.Abs(newAccount.MinimumBalance) / 2d);
+            long withdrawAmount2 = (long)Math.Truncate(withdrawAmount1 / 2d);
+
+            newAccount = this._accountService.Withdraw(newAccount.ID, withdrawAmount1);
+            newAccount = this._accountService.Withdraw(newAccount.ID, withdrawAmount2);
+
+            Assert.AreEqual(0 - withdrawAmount1 - withdrawAmount2, newAccount.CurrentBalance);
+        }
+
+        [TestMethod]
+        public void WithdrawFromCurrent_MoreThanOverdraft_ShouldThrowWithdrawalAmountTooLarge()
+        {
+            long customerNum = 10;
+
+            Account newAccount = this._accountService.OpenCurrentAccount(customerNum);
+
+            long withdrawAmount = (long)Math.Truncate(Math.Abs(newAccount.MinimumBalance) / 2d);
+
+            newAccount = this._accountService.Withdraw(newAccount.ID, withdrawAmount);
+
+            Assert.ThrowsException<WithdrawalAmountTooLargeException>(() => this._accountService.Withdraw(newAccount.ID, withdrawAmount * 2));
         }
     }
 }

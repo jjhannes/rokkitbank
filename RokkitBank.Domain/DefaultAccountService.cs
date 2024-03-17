@@ -19,8 +19,8 @@ namespace RokkitBank.Domain
             int? MaxCurrentOverdraft = null,
             List<Account>? Seed = null)
         {
-            this._minimumSavingsAccountBalance = MinSavingsBalance ?? 100;
-            this._minimumSavingsAccountCreateDeposit = MinSavingsOpeningBalance ?? 100;
+            this._minimumSavingsAccountBalance = MinSavingsBalance ?? 1000;
+            this._minimumSavingsAccountCreateDeposit = MinSavingsOpeningBalance ?? 1000;
             this._maximumCurrentAccountOverdraft = MaxCurrentOverdraft ?? 100000;
 
             if (Seed != null)
